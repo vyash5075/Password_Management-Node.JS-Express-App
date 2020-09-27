@@ -43,8 +43,8 @@
                         <div class="panel-title"> Edit Password Category</div>
                          </div>  
                     <div class="panel-body" >
-                        <form action="/add-new-category" id="EmployeeForm" class="form-horizontal" method="post"  role="form">
-                          
+                        <form action="/passwordCategory/edit/<%= records._id %>" id="EmployeeForm" class="form-horizontal" method="post"  role="form">
+                          <input type="hidden" name='id' value='<%=id%>'>
                             <div class="form-group">
                              <% if(errors!=''){%>
                                 <p style='text-align: center;color:red'><%=errors.passwordCategory.msg%></p>
@@ -58,14 +58,14 @@
                            
                                 <label for="username" class="col-md-3 control-label">Category Name</label>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" name="passwordCategory" placeholder="Enter YourPassword Category Name">
+                                    <input type="text" class="form-control" name="passwordCategory" value="<%=records.passord_category %>" placeholder="Enter YourPassword Category Name">
                                 </div>
                             </div>
                            
                             <div class="form-group">
                                                                       
                                 <div class="col-md-offset-3 col-md-9">
-                                <input type="submit" name="submit" value="Add Category" class="btn btn-primary">   
+                                <input type="submit" name="submit" value="Edit and Save" class="btn btn-primary">   
                                 </div>
                             </div>
                             

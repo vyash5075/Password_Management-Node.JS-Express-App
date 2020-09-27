@@ -6,6 +6,7 @@ var jwt=require('jsonwebtoken');
 var passCatModel=require('../modules/password_category');
 var getPassCat=passCatModel.find({});
 const {check,validationResult}=require('express-validator');
+const passCateModel = require('../modules/password_category');
 if (typeof localStorage === "undefined" || localStorage === null) {
   var LocalStorage = require('node-localstorage').LocalStorage;
   localStorage = new LocalStorage('./scratch');
@@ -159,11 +160,22 @@ router.get('/passwordCategory/edit/:id',checkLoginUser, function(req, res, next)
   getpassCategory.exec(function(err,data){
     console.log(data)
     if(err)throw err;
-    res.render('edit_pass_category', { title: 'Password-Management-System' ,loginUser:loginUser,errors:'',success:'',records:data});
+    res.render('edit_pass_category', { title: 'Password-Management-System' ,loginUser:loginUser,errors:'',success:'',records:data,id:passcat_id});
 
  });
 })
 
+
+router.post('/passwordCategory/edit/:id',checkLoginUser, function(req, res, next) {
+  var loginUser=localStorage.getItem('loginUser')
+  var  passcat_id=  req.body.id;
+  var  passwordCategory=  req.body.passwordCategory;
+  var update_passCategory=passCateModel.findByIdAndUpdate(passcat_id,{passord_category:passwordCategory})
+  update_passCategory.exec(function(err,data){    
+    if(err)throw err;
+   res.redirect('/passwordCategory');
+ });
+})
 
 
 router.get('/add-new-category',checkLoginUser, function(req, res, next) {
@@ -202,7 +214,12 @@ router.post('/add-new-category',checkLoginUser,  [ check('passwordCategory','Ent
 
 router.get('/add-new-password', checkLoginUser,function(req, res, next) {
   var loginUser=localStorage.getItem('loginUser')
-  res.render('add-new-password', { title: 'Password-Management-System',loginUser:loginUser });
+  getPassCat.exec(function(err,data){
+    if (err) throw err;
+    res.render('add-new-password', { title: 'Password-Management-System',loginUser:loginUser,records:data });
+
+  })
+  
 });
 
 
