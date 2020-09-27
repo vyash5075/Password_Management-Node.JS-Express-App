@@ -137,6 +137,35 @@ router.get('/passwordCategory',checkLoginUser, function(req, res, next) {
 });
 })
 
+
+router.get('/passwordCategory/delete/:id',checkLoginUser, function(req, res, next) {
+  var loginUser=localStorage.getItem('loginUser')
+  var  passcat_id=  req.params.id;
+  console.log(passcat_id);
+  var pasdelete=passCatModel.findByIdAndDelete(passcat_id);
+  pasdelete.exec(function(err,data){
+    console.log(data)
+    if(err)throw err;
+    res.redirect('/passwordCategory')
+ });
+})
+
+
+router.get('/passwordCategory/edit/:id',checkLoginUser, function(req, res, next) {
+  var loginUser=localStorage.getItem('loginUser')
+  var  passcat_id=  req.params.id;
+  console.log(passcat_id);
+  var getpassCategory=passCatModel.findById(passcat_id);
+  getpassCategory.exec(function(err,data){
+    console.log(data)
+    if(err)throw err;
+    res.render('edit_pass_category', { title: 'Password-Management-System' ,loginUser:loginUser,errors:'',success:'',records:data});
+
+ });
+})
+
+
+
 router.get('/add-new-category',checkLoginUser, function(req, res, next) {
 
   var loginUser=localStorage.getItem('loginUser');
