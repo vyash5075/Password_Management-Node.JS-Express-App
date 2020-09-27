@@ -1,10 +1,12 @@
 var express = require('express');
 var router = express.Router();
 var userModel=require('../modules/user');
+var passModel=require('../modules/add_password');
 var bcrypt=require('bcryptjs');
 var jwt=require('jsonwebtoken');
 var passCatModel=require('../modules/password_category');
 var getPassCat=passCatModel.find({});
+var getpassDetail=passModel.find({});
 const {check,validationResult}=require('express-validator');
 const passCateModel = require('../modules/password_category');
 if (typeof localStorage === "undefined" || localStorage === null) {
@@ -216,17 +218,57 @@ router.get('/add-new-password', checkLoginUser,function(req, res, next) {
   var loginUser=localStorage.getItem('loginUser')
   getPassCat.exec(function(err,data){
     if (err) throw err;
-    res.render('add-new-password', { title: 'Password-Management-System',loginUser:loginUser,records:data });
+    res.render('add-new-password', { title: 'Password-Management-System',loginUser:loginUser,records:data,success:'' });
 
   })
   
 });
 
 
+router.post('/add-new-password', checkLoginUser,function(req, res, next) {
+  var loginUser=localStorage.getItem('loginUser')
+  var pass_cat=req.body.pass_cat;
+  var pass_details=req.body.pass_details;
+  var project_name=req.body.project_name;
+  var passworddetails= new passModel({
+    password_category:pass_cat,
+    password_detail: pass_details, 
+    project_name:project_name
+
+  });
+   
+    passworddetails.save(function(err,doc){
+      if(err) throw err;
+      res.render('add-new-password', { title: 'Password-Management-System',loginUser:loginUser,records:doc,success:"Password Inserted Successfully" });
+
+    })
+    
+  })
+  
+
+
+
+
 router.get('/view-all-password',checkLoginUser, function(req, res, next) {
   var loginUser=localStorage.getItem('loginUser')
-  res.render('view-all-password', { title: 'Password-Management-System',loginUser:loginUser });
+  getpassDetail.exec(function(err,data){
+    console.log(data)
+    if(err)throw err;
+  res.render('view-all-password', { title: 'Password-Management-System',loginUser:loginUser,records:data});
 });
+});
+
+router.get('/view-all-password/delete/:id',checkLoginUser, function(req, res, next) {
+  var loginUser=localStorage.getItem('loginUser')
+  var  pass_id=  req.params.id;
+  console.log(pass_id);
+  var pasdelete=passModel.findByIdAndDelete(pass_id);
+  pasdelete.exec(function(err,data){
+    console.log(data)
+    if(err)throw err;
+    res.redirect('/view-all-password')
+ });
+})
 router.get('/logout', function(req, res, next) {
      
   localStorage.removeItem('userToken');
