@@ -230,7 +230,7 @@ router.post('/add-new-password', checkLoginUser,function(req, res, next) {
   var pass_cat=req.body.pass_cat;
   var pass_details=req.body.pass_details;
   var project_name=req.body.project_name;
-  var passworddetails= new passModel({
+  var passworddetails= new passModel({  
     password_category:pass_cat,
     password_detail: pass_details, 
     project_name:project_name
@@ -251,11 +251,20 @@ router.post('/add-new-password', checkLoginUser,function(req, res, next) {
 
 router.get('/view-all-password',checkLoginUser, function(req, res, next) {
   var loginUser=localStorage.getItem('loginUser')
-  getpassDetail.exec(function(err,data){
-    console.log(data)
+  var perPage=5;
+  var page=req.params.page || 1;
+  getpassDetail.skip((perPage*page)-perPage)
+  .limit(perPage).exec(function(err,data){
     if(err)throw err;
-  res.render('view-all-password', { title: 'Password-Management-System',loginUser:loginUser,records:data});
-});
+    passModel.countDocuments({}).exec((err,count)=>{  
+    res.render('view-all-password', { title: 'Password-Management-System',loginUser:loginUser,
+    records:data,
+    current:page,
+    pages:Math.ceil(count/perPage)
+  });
+ 
+  });
+})
 });
 
 router.get('/view-all-password/delete/:id',checkLoginUser, function(req, res, next) {
@@ -269,6 +278,40 @@ router.get('/view-all-password/delete/:id',checkLoginUser, function(req, res, ne
     res.redirect('/view-all-password')
  });
 })
+
+
+
+router.get('/view-all-password/edit/:id',checkLoginUser, function(req, res, next) {
+  
+  var loginUser=localStorage.getItem('loginUser')
+  var id=req.params.id;
+  var getPassDetails=passModel.findById({_id:id});
+
+  getPassDetails.exec(function(err,data){
+    console.log(data)
+    if(err)throw err;
+    getPassCat.exec(function(err,data1){
+
+   
+  res.render('edit_password', { title: 'Password-Management-System',loginUser:loginUser,records:data1,record:data,success:''});
+});
+})
+})
+
+
+router.post('/view-all-password/edit/:id',checkLoginUser, function(req, res, next) {
+  var loginUser=localStorage.getItem('loginUser')
+  var  pass_id=  req.body.id;
+  var passwordCategory=req.body.pass_cat;
+  var password_detail=req.body.pass_details;
+  var project_name=req.body.project_name;
+  var update_passdetail=passModel.findByIdAndUpdate(pass_id,{password_category:passwordCategory,password_detail:password_detail,project_name:project_name})
+  update_passdetail.exec(function(err,data){    
+    if(err)throw err;
+   res.redirect('/view-all-password');
+ });
+})
+
 router.get('/logout', function(req, res, next) {
      
   localStorage.removeItem('userToken');
